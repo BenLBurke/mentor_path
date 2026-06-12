@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { spawn } from "child_process";
+import { existsSync } from "fs";
+import { homedir } from "os";
+import { join } from "path";
 
 interface IncomingMessage {
   role: "user" | "assistant";
@@ -54,6 +57,45 @@ ${conversation}
 Reply to the mentee's latest message as their mentor.`;
 }
 
+let cachedClaudePath: string | null = null;
+
+function findClaude(): string {
+  if (cachedClaudePath) return cachedClaudePath;
+
+  // Explicit override first: set CLAUDE_CLI_PATH in .env.local if needed.
+  if (process.env.CLAUDE_CLI_PATH && existsSync(process.env.CLAUDE_CLI_PATH)) {
+    cachedClaudePath = process.env.CLAUDE_CLI_PATH;
+    return cachedClaudePath;
+  }
+
+  const home = homedir();
+  const candidates =
+    process.platform === "win32"
+      ? [
+          join(home, ".local", "bin", "claude.exe"),
+          join(home, ".local", "bin", "claude.cmd"),
+          join(home, "AppData", "Roaming", "npm", "claude.cmd"),
+          join(home, "AppData", "Roaming", "npm", "claude.exe"),
+          join(home, ".claude", "local", "claude.exe"),
+        ]
+      : [
+          join(home, ".local", "bin", "claude"),
+          join(home, ".claude", "local", "claude"),
+          "/usr/local/bin/claude",
+          "/opt/homebrew/bin/claude",
+        ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      cachedClaudePath = candidate;
+      return cachedClaudePath;
+    }
+  }
+
+  // Fall back to PATH lookup.
+  return "claude";
+}
+
 function runClaude(prompt: string): Promise<string> {
   return new Promise((resolve, reject) => {
     // Strip Claude Code session vars so a nested CLI invocation doesn't
@@ -66,9 +108,15 @@ function runClaude(prompt: string): Promise<string> {
       }
     }
 
-    const child = spawn("claude", ["--print", "--output-format", "text"], {
+    const useShell = process.platform === "win32";
+    const claudePath = findClaude();
+    // .cmd shims on Windows require a shell to execute; quote the path in
+    // case it contains spaces (the shell does no escaping for us).
+    const command =
+      useShell && claudePath.includes(" ") ? `"${claudePath}"` : claudePath;
+    const child = spawn(command, ["--print", "--output-format", "text"], {
       env,
-      shell: process.platform === "win32",
+      shell: useShell,
       timeout: 120_000,
     });
 
@@ -90,7 +138,10 @@ function runClaude(prompt: string): Promise<string> {
         resolve(stdout.trim());
       } else {
         reject(
-          new Error(`claude CLI exited with code ${code}: ${stderr || stdout}`)
+          new Error(
+            `claude CLI (${claudePath}) exited with code ${code}: ${stderr || stdout}. ` +
+              `If the CLI isn't being found, set CLAUDE_CLI_PATH to its full path in .env.local and restart the dev server.`
+          )
         );
       }
     });
