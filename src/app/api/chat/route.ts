@@ -74,9 +74,13 @@ function findClaude(): string {
       ? [
           join(home, ".local", "bin", "claude.exe"),
           join(home, ".local", "bin", "claude.cmd"),
+          join(home, ".local", "bin", "claude"),
           join(home, "AppData", "Roaming", "npm", "claude.cmd"),
           join(home, "AppData", "Roaming", "npm", "claude.exe"),
           join(home, ".claude", "local", "claude.exe"),
+          join(home, "scoop", "shims", "claude.exe"),
+          join(home, "AppData", "Local", "Volta", "bin", "claude.exe"),
+          "C:\\Program Files\\nodejs\\claude.cmd",
         ]
       : [
           join(home, ".local", "bin", "claude"),
