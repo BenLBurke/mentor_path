@@ -1,19 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { execFile } from "child_process";
-import { promisify } from "util";
-
-const execFileAsync = promisify(execFile);
+import { spawn } from "child_process";
 
 interface IncomingMessage {
   role: "user" | "assistant";
   content: string;
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const { messages, profile } = await req.json();
+function buildPrompt(
+  messages: IncomingMessage[],
+  profile: {
+    name: string;
+    ageRange: string;
+    primaryGoal: string;
+    interests: string[];
+    aversions: string[];
+    dreamCareers: string[];
+  }
+): string {
+  const conversation = messages
+    .map((m) =>
+      m.role === "user" ? `Mentee: ${m.content}` : `Mentor (you): ${m.content}`
+    )
+    .join("\n\n");
 
-    const systemPrompt = `You are MentorPath, an AI career mentor and guidance counselor. You are warm, encouraging, and practical.
+  return `You are MentorPath, an AI career mentor and guidance counselor. You are warm, encouraging, and practical.
 
 About the person you're mentoring:
 - Name: ${profile.name}
@@ -35,38 +45,75 @@ Your role:
 9. If they seem stuck, ask thoughtful questions to help them discover what they care about.
 10. Include fun suggestions too — extracurriculars, hobbies, and experiences that build relevant skills while being enjoyable.
 
-Keep responses concise — 2-4 paragraphs max. Be specific and actionable. Respond with plain text only (no markdown headers), as your reply is shown directly in a chat bubble.`;
+Keep responses concise — 2-4 paragraphs max. Be specific and actionable. Respond with plain text only (no markdown headers), as your reply is shown directly in a chat bubble. Output ONLY the mentor's reply — no preamble.
 
-    // The claude CLI is single-prompt, so serialize the conversation
-    // history into the prompt to preserve multi-turn context.
-    const conversation = (messages as IncomingMessage[])
-      .map((m) =>
-        m.role === "user" ? `Mentee: ${m.content}` : `Mentor (you): ${m.content}`
-      )
-      .join("\n\n");
+Here is the conversation so far:
 
-    const prompt = `Here is the conversation so far:\n\n${conversation}\n\nReply to the mentee's latest message as their mentor.`;
+${conversation}
 
-    const { stdout } = await execFileAsync(
-      "claude",
-      [
-        "-p",
-        prompt,
-        "--system-prompt",
-        systemPrompt,
-        "--output-format",
-        "text",
-      ],
-      { timeout: 120_000, maxBuffer: 1024 * 1024 }
-    );
+Reply to the mentee's latest message as their mentor.`;
+}
 
-    return NextResponse.json({ message: stdout.trim() });
+function runClaude(prompt: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // Strip Claude Code session vars so a nested CLI invocation doesn't
+    // inherit flags/behavior from a parent session, and use a shell on
+    // Windows so claude.cmd resolves.
+    const env = { ...process.env };
+    for (const key of Object.keys(env)) {
+      if (key.startsWith("CLAUDE_CODE_") || key === "CLAUDECODE") {
+        delete env[key];
+      }
+    }
+
+    const child = spawn("claude", ["--print", "--output-format", "text"], {
+      env,
+      shell: process.platform === "win32",
+      timeout: 120_000,
+    });
+
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (d) => (stdout += d));
+    child.stderr.on("data", (d) => (stderr += d));
+
+    child.on("error", (err) => {
+      reject(
+        new Error(
+          `Failed to launch claude CLI: ${err.message}. Is it installed and on PATH?`
+        )
+      );
+    });
+
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve(stdout.trim());
+      } else {
+        reject(
+          new Error(`claude CLI exited with code ${code}: ${stderr || stdout}`)
+        );
+      }
+    });
+
+    // Pass the prompt via stdin to avoid arg-length limits and quoting issues.
+    child.stdin.write(prompt);
+    child.stdin.end();
+  });
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { messages, profile } = await req.json();
+    const prompt = buildPrompt(messages, profile);
+    const message = await runClaude(prompt);
+    return NextResponse.json({ message });
   } catch (error) {
-    console.error("Chat API error:", error);
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error("Chat API error:", detail);
     return NextResponse.json(
       {
-        error:
-          "Failed to get mentor response. Make sure the `claude` CLI is installed and authenticated (run `claude` once to log in).",
+        error: "Failed to get mentor response.",
+        detail,
       },
       { status: 500 }
     );
