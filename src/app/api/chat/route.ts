@@ -1,7 +1,13 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { execFile } from "child_process";
+import { promisify } from "util";
 
-const anthropic = new Anthropic();
+const execFileAsync = promisify(execFile);
+
+interface IncomingMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,26 +35,39 @@ Your role:
 9. If they seem stuck, ask thoughtful questions to help them discover what they care about.
 10. Include fun suggestions too — extracurriculars, hobbies, and experiences that build relevant skills while being enjoyable.
 
-Keep responses concise — 2-4 paragraphs max. Be specific and actionable.`;
+Keep responses concise — 2-4 paragraphs max. Be specific and actionable. Respond with plain text only (no markdown headers), as your reply is shown directly in a chat bubble.`;
 
-    const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: messages.map((m: { role: string; content: string }) => ({
-        role: m.role,
-        content: m.content,
-      })),
-    });
+    // The claude CLI is single-prompt, so serialize the conversation
+    // history into the prompt to preserve multi-turn context.
+    const conversation = (messages as IncomingMessage[])
+      .map((m) =>
+        m.role === "user" ? `Mentee: ${m.content}` : `Mentor (you): ${m.content}`
+      )
+      .join("\n\n");
 
-    const text =
-      response.content[0].type === "text" ? response.content[0].text : "";
+    const prompt = `Here is the conversation so far:\n\n${conversation}\n\nReply to the mentee's latest message as their mentor.`;
 
-    return NextResponse.json({ message: text });
+    const { stdout } = await execFileAsync(
+      "claude",
+      [
+        "-p",
+        prompt,
+        "--system-prompt",
+        systemPrompt,
+        "--output-format",
+        "text",
+      ],
+      { timeout: 120_000, maxBuffer: 1024 * 1024 }
+    );
+
+    return NextResponse.json({ message: stdout.trim() });
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json(
-      { error: "Failed to get mentor response. Please try again." },
+      {
+        error:
+          "Failed to get mentor response. Make sure the `claude` CLI is installed and authenticated (run `claude` once to log in).",
+      },
       { status: 500 }
     );
   }

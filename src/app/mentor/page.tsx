@@ -62,7 +62,7 @@ export default function MentorPage() {
         {
           role: "assistant",
           content:
-            "Sorry, I had trouble responding. Can you try again? Make sure the app is configured with an API key.",
+            "Sorry, I had trouble responding. Can you try again? Make sure the `claude` CLI is installed and logged in on this machine.",
         },
       ]);
     } finally {
