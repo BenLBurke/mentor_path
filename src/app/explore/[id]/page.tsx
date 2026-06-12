@@ -126,12 +126,18 @@ export default function CareerDetailPage() {
             </div>
           )}
 
-          <div className="text-center animate-float-up delay-300">
+          <div className="text-center animate-float-up delay-300 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href={`/journey?target=${encodeURIComponent(career.title)}`}
+              className="label-caps inline-block bg-[#0e3a47] text-white px-10 py-4 rounded-full hover:bg-[#1e9fc4] transition-all duration-300"
+            >
+              Map my journey to this career
+            </Link>
             <Link
               href="/mentor"
               className="label-caps inline-block border border-[#0e3a47] text-[#0e3a47] px-10 py-4 rounded-full hover:bg-[#0e3a47] hover:text-white transition-all duration-300"
             >
-              Ask your mentor about this career
+              Ask your mentor about it
             </Link>
           </div>
         </div>

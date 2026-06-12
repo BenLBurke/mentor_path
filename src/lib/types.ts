@@ -14,6 +14,25 @@ export interface ChatMessage {
   content: string;
 }
 
+export interface JourneyMilestone {
+  id: string;
+  title: string;
+  timeframe: string;
+  description: string;
+  actions: string[];
+  skills: string[];
+  funFactor: string;
+}
+
+export interface Journey {
+  target: string;
+  startingPoint: string;
+  endState: string;
+  totalDuration: string;
+  milestones: JourneyMilestone[];
+  createdAt: string;
+}
+
 export interface CareerPath {
   id: string;
   title: string;
