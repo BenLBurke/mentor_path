@@ -1,11 +1,62 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --color-brand: #6366f1;
-  --color-brand-dark: #4f46e5;
-  --color-brand-light: #a5b4fc;
-  --color-surface: #ffffff;
-  --color-surface-alt: #f8fafc;
-  --color-muted: #64748b;
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+  --color-sky-brand: #3cbbde;
+  --color-sky-deep: #1e9fc4;
+  --color-sky-soft: #e8f7fb;
+  --color-sky-mist: #f4fbfd;
+  --color-ink: #0e3a47;
+}
+
+body {
+  background: linear-gradient(180deg, #ffffff 0%, #e8f7fb 50%, #cdeef8 100%);
+  background-attachment: fixed;
+}
+
+@keyframes float-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float-up {
+  animation: float-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-drift {
+  animation: drift 6s ease-in-out infinite;
+}
+
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.label-caps {
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.7rem;
+  font-weight: 500;
 }

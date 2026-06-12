@@ -7,14 +7,7 @@ import { getCareerById, CAREER_PATHS } from "@/lib/careers";
 import { CareerPath } from "@/lib/types";
 import Nav from "@/components/nav";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Clock,
-  DollarSign,
-  GraduationCap,
-  Briefcase,
-  MessageCircle,
-} from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 
 export default function CareerDetailPage() {
   const params = useParams();
@@ -41,68 +34,58 @@ export default function CareerDetailPage() {
     .filter(Boolean);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col">
       <Nav />
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 pt-6 md:pt-18 pb-24">
+      <main className="flex-1 max-w-3xl w-full mx-auto px-4 pt-8 md:pt-22 pb-24">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6 cursor-pointer"
+          className="label-caps flex items-center gap-2 text-[#0e3a47]/50 hover:text-[#0e3a47] mb-10 transition-colors cursor-pointer"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Explore
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back
         </button>
 
-        <div className="space-y-6">
-          <div>
-            <p className="text-sm font-medium text-indigo-600 mb-1">
-              {career.category}
-            </p>
-            <h1 className="text-3xl font-bold text-slate-900">{career.title}</h1>
-            <p className="text-slate-600 mt-2">{career.description}</p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
-              <DollarSign className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
-              <p className="text-xs text-slate-500">Salary</p>
-              <p className="text-sm font-semibold text-slate-900">
-                {career.salaryRange}
-              </p>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
-              <Clock className="w-5 h-5 text-blue-500 mx-auto mb-1" />
-              <p className="text-xs text-slate-500">Time to Entry</p>
-              <p className="text-sm font-semibold text-slate-900">
-                {career.timeToEntry}
-              </p>
-            </div>
-            <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
-              <GraduationCap className="w-5 h-5 text-purple-500 mx-auto mb-1" />
-              <p className="text-xs text-slate-500">Education</p>
-              <p className="text-sm font-semibold text-slate-900 text-[11px] leading-tight">
-                {career.education}
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-slate-200 p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Briefcase className="w-5 h-5 text-indigo-500" />
-              <h2 className="font-semibold text-slate-900">A Day in the Life</h2>
-            </div>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              {career.dayInLife}
+        <div className="space-y-10">
+          <div className="text-center space-y-4 animate-float-up">
+            <p className="label-caps text-[#1e9fc4]">{career.category}</p>
+            <h1 className="font-serif text-5xl md:text-6xl font-medium">
+              {career.title}
+            </h1>
+            <p className="text-[#0e3a47]/65 max-w-lg mx-auto leading-relaxed">
+              {career.description}
             </p>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 p-5">
-            <h2 className="font-semibold text-slate-900 mb-3">Key Skills</h2>
-            <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-3 divide-x divide-[#3cbbde]/25 bg-white/70 backdrop-blur-sm rounded-2xl border border-[#3cbbde]/20 animate-float-up delay-100">
+            {[
+              ["Salary", career.salaryRange],
+              ["Time to Entry", career.timeToEntry],
+              ["Education", career.education.split("(")[0].trim()],
+            ].map(([label, value]) => (
+              <div key={label} className="p-5 text-center space-y-1.5">
+                <p className="label-caps text-[#0e3a47]/45">{label}</p>
+                <p className="font-serif text-lg leading-tight text-[#0e3a47]">
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="animate-float-up delay-200 space-y-3 text-center">
+            <p className="label-caps text-[#1e9fc4]">A Day in the Life</p>
+            <p className="font-serif text-xl md:text-2xl italic leading-relaxed text-[#0e3a47]/85 max-w-xl mx-auto">
+              &ldquo;{career.dayInLife}&rdquo;
+            </p>
+          </div>
+
+          <div className="animate-float-up delay-200 space-y-4 text-center">
+            <p className="label-caps text-[#1e9fc4]">Key Skills</p>
+            <div className="flex flex-wrap justify-center gap-3">
               {career.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium"
+                  className="label-caps px-5 py-2.5 rounded-full border border-[#0e3a47]/20 bg-white/60 text-[#0e3a47]"
                 >
                   {skill}
                 </span>
@@ -111,28 +94,31 @@ export default function CareerDetailPage() {
           </div>
 
           {relatedCareers.length > 0 && (
-            <div>
-              <h2 className="font-semibold text-slate-900 mb-3">
-                Related Paths
-              </h2>
-              <div className="grid gap-2">
+            <div className="animate-float-up delay-300 space-y-4">
+              <div className="flex items-center gap-4">
+                <p className="label-caps text-[#1e9fc4] shrink-0">
+                  Related Paths
+                </p>
+                <div className="h-px flex-1 bg-[#3cbbde]/25" />
+              </div>
+              <div className="grid gap-3">
                 {relatedCareers.map(
                   (rc) =>
                     rc && (
                       <Link
                         key={rc.id}
                         href={`/explore/${rc.id}`}
-                        className="flex items-center justify-between bg-white rounded-xl border border-slate-200 px-4 py-3 hover:border-indigo-300 transition-colors"
+                        className="group flex items-center justify-between bg-white/70 backdrop-blur-sm rounded-2xl border border-[#3cbbde]/20 px-5 py-4 hover:border-[#1e9fc4]/50 transition-all duration-300"
                       >
                         <div>
-                          <p className="font-medium text-slate-900">
+                          <p className="font-serif text-xl text-[#0e3a47]">
                             {rc.title}
                           </p>
-                          <p className="text-xs text-slate-500">
+                          <p className="label-caps text-[#0e3a47]/45 mt-1">
                             {rc.salaryRange} · {rc.timeToEntry}
                           </p>
                         </div>
-                        <ArrowLeft className="w-4 h-4 text-slate-400 rotate-180" />
+                        <ArrowUpRight className="w-4 h-4 text-[#1e9fc4] opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Link>
                     )
                 )}
@@ -140,13 +126,14 @@ export default function CareerDetailPage() {
             </div>
           )}
 
-          <Link
-            href="/mentor"
-            className="flex items-center justify-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors"
-          >
-            <MessageCircle className="w-5 h-5" />
-            Ask your mentor about this career
-          </Link>
+          <div className="text-center animate-float-up delay-300">
+            <Link
+              href="/mentor"
+              className="label-caps inline-block border border-[#0e3a47] text-[#0e3a47] px-10 py-4 rounded-full hover:bg-[#0e3a47] hover:text-white transition-all duration-300"
+            >
+              Ask your mentor about this career
+            </Link>
+          </div>
         </div>
       </main>
     </div>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { loadProfile } from "@/lib/profile";
 import { UserProfile, ChatMessage } from "@/lib/types";
 import Nav from "@/components/nav";
-import { Send, Loader2, Sparkles } from "lucide-react";
+import { ArrowUp, Loader2 } from "lucide-react";
 
 const STARTER_PROMPTS = [
   "What careers match my interests?",
@@ -74,33 +74,30 @@ export default function MentorPage() {
   if (!profile) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col">
       <Nav />
 
-      <main className="flex-1 flex flex-col max-w-3xl w-full mx-auto pt-4 md:pt-16 pb-32">
+      <main className="flex-1 flex flex-col max-w-3xl w-full mx-auto pt-4 md:pt-20 pb-36">
         {/* Welcome / empty state */}
         {messages.length === 0 && (
-          <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-6">
-            <div className="bg-indigo-100 rounded-2xl p-4">
-              <Sparkles className="w-10 h-10 text-indigo-600" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-slate-900">
-                Hey {profile.name}! I'm your mentor.
-              </h2>
-              <p className="text-slate-500 max-w-md">
-                I know you're interested in{" "}
-                {profile.interests.slice(0, 3).join(", ")} and your goal is to{" "}
-                {profile.primaryGoal.toLowerCase()}. Let's figure out your path
-                together.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-md">
+          <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-8 animate-float-up">
+            <p className="label-caps text-[#1e9fc4]">Your Mentor</p>
+            <h2 className="font-serif text-4xl md:text-5xl font-medium leading-tight">
+              Hello, <span className="italic">{profile.name}.</span>
+              <br />
+              Let&apos;s find your path.
+            </h2>
+            <p className="text-sm text-[#0e3a47]/60 max-w-md leading-relaxed">
+              I know you&apos;re drawn to{" "}
+              {profile.interests.slice(0, 3).join(", ").toLowerCase()} and your
+              goal is to {profile.primaryGoal.toLowerCase()}. Ask me anything.
+            </p>
+            <div className="flex flex-wrap justify-center gap-3 w-full max-w-lg">
               {STARTER_PROMPTS.map((prompt) => (
                 <button
                   key={prompt}
                   onClick={() => sendMessage(prompt)}
-                  className="text-left px-4 py-3 rounded-xl bg-white border border-slate-200 text-sm text-slate-700 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer"
+                  className="label-caps px-5 py-3 rounded-full border border-[#0e3a47]/25 bg-white/60 text-[#0e3a47] hover:border-[#0e3a47] transition-all duration-300 cursor-pointer"
                 >
                   {prompt}
                 </button>
@@ -111,27 +108,30 @@ export default function MentorPage() {
 
         {/* Messages */}
         {messages.length > 0 && (
-          <div className="flex-1 px-4 space-y-4 overflow-y-auto">
+          <div className="flex-1 px-4 space-y-5 overflow-y-auto">
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex animate-float-up ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
-                <div
-                  className={`max-w-[85%] md:max-w-[75%] px-4 py-3 rounded-2xl whitespace-pre-wrap text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-indigo-600 text-white rounded-br-md"
-                      : "bg-white text-slate-800 border border-slate-200 rounded-bl-md shadow-sm"
-                  }`}
-                >
-                  {msg.content}
-                </div>
+                {msg.role === "user" ? (
+                  <div className="max-w-[85%] md:max-w-[70%] px-5 py-3.5 rounded-3xl rounded-br-lg bg-[#0e3a47] text-white whitespace-pre-wrap text-sm leading-relaxed">
+                    {msg.content}
+                  </div>
+                ) : (
+                  <div className="max-w-[90%] md:max-w-[80%] space-y-1.5">
+                    <p className="label-caps text-[#1e9fc4] pl-5">Mentor</p>
+                    <div className="px-5 py-4 rounded-3xl rounded-bl-lg bg-white/80 backdrop-blur-sm border border-[#3cbbde]/20 text-[#0e3a47] whitespace-pre-wrap text-sm leading-relaxed shadow-[0_4px_24px_rgba(60,187,222,0.08)]">
+                      {msg.content}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
-                  <Loader2 className="w-5 h-5 text-indigo-500 animate-spin" />
+                <div className="px-5 py-4 rounded-3xl rounded-bl-lg bg-white/80 border border-[#3cbbde]/20">
+                  <Loader2 className="w-5 h-5 text-[#1e9fc4] animate-spin" />
                 </div>
               </div>
             )}
@@ -141,13 +141,13 @@ export default function MentorPage() {
       </main>
 
       {/* Input */}
-      <div className="fixed bottom-14 md:bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4">
+      <div className="fixed bottom-14 md:bottom-0 left-0 right-0 bg-white/70 backdrop-blur-md border-t border-[#3cbbde]/20 p-4">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             sendMessage(input);
           }}
-          className="max-w-3xl mx-auto flex items-end gap-2"
+          className="max-w-3xl mx-auto flex items-end gap-3"
         >
           <textarea
             ref={inputRef}
@@ -161,14 +161,14 @@ export default function MentorPage() {
             }}
             placeholder="Ask your mentor anything..."
             rows={1}
-            className="flex-1 px-4 py-3 rounded-xl border border-slate-300 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+            className="flex-1 px-5 py-3.5 rounded-full border border-[#0e3a47]/20 bg-white resize-none focus:outline-none focus:border-[#1e9fc4] text-sm placeholder:text-[#0e3a47]/40 transition-colors"
           />
           <button
             type="submit"
             disabled={!input.trim() || loading}
-            className="bg-indigo-600 text-white p-3 rounded-xl hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer shrink-0"
+            className="bg-[#0e3a47] text-white p-3.5 rounded-full hover:bg-[#1e9fc4] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 cursor-pointer shrink-0"
           >
-            <Send className="w-5 h-5" />
+            <ArrowUp className="w-5 h-5" />
           </button>
         </form>
       </div>

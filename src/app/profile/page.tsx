@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { loadProfile, clearProfile } from "@/lib/profile";
 import { UserProfile } from "@/lib/types";
 import Nav from "@/components/nav";
-import { User, Target, Heart, ShieldOff, Star, Calendar, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -40,116 +40,86 @@ export default function ProfilePage() {
     adult: "Adult (25+)",
   };
 
+  const section = (label: string, children: React.ReactNode) => (
+    <div className="space-y-3 text-center">
+      <p className="label-caps text-[#1e9fc4]">{label}</p>
+      {children}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col">
       <Nav />
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 pt-6 md:pt-18 pb-24">
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">Your Profile</h1>
+      <main className="flex-1 max-w-2xl w-full mx-auto px-4 pt-10 md:pt-24 pb-24">
+        <div className="text-center space-y-3 mb-12 animate-float-up">
+          <p className="label-caps text-[#1e9fc4]">Your Journey</p>
+          <h1 className="font-serif text-5xl md:text-6xl font-medium">
+            {profile.name}
+          </h1>
+          <p className="label-caps text-[#0e3a47]/50">
+            {ageLabels[profile.ageRange]} · Since{" "}
+            {new Date(profile.createdAt).toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            })}
+          </p>
+        </div>
 
-        <div className="space-y-4">
-          <div className="bg-white rounded-xl border border-slate-200 p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-indigo-100 rounded-full p-3">
-                <User className="w-6 h-6 text-indigo-600" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-slate-900">
-                  {profile.name}
-                </h2>
-                <p className="text-sm text-slate-500">
-                  {ageLabels[profile.ageRange]}
-                </p>
-              </div>
+        <div className="space-y-10 animate-float-up delay-100">
+          {section(
+            "North Star",
+            <p className="font-serif italic text-3xl text-[#0e3a47]">
+              {profile.primaryGoal}
+            </p>
+          )}
+
+          {section(
+            "Interests",
+            <div className="flex flex-wrap justify-center gap-3">
+              {profile.interests.map((i) => (
+                <span
+                  key={i}
+                  className="label-caps px-5 py-2.5 rounded-full border border-[#1e9fc4]/40 bg-white/60 text-[#0e3a47]"
+                >
+                  {i}
+                </span>
+              ))}
             </div>
-          </div>
+          )}
 
-          <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
-            <div>
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-500 mb-2">
-                <Target className="w-4 h-4" />
-                Primary Goal
-              </div>
-              <p className="text-slate-900 font-medium">{profile.primaryGoal}</p>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-500 mb-2">
-                <Heart className="w-4 h-4" />
-                Interests
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {profile.interests.map((i) => (
+          {profile.aversions.length > 0 &&
+            section(
+              "Steering Clear Of",
+              <div className="flex flex-wrap justify-center gap-3">
+                {profile.aversions.map((a) => (
                   <span
-                    key={i}
-                    className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-sm"
+                    key={a}
+                    className="label-caps px-5 py-2.5 rounded-full border border-[#0e3a47]/20 bg-white/40 text-[#0e3a47]/60"
                   >
-                    {i}
+                    {a}
                   </span>
                 ))}
               </div>
-            </div>
-
-            {profile.aversions.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 text-sm font-medium text-slate-500 mb-2">
-                  <ShieldOff className="w-4 h-4" />
-                  Want to Avoid
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {profile.aversions.map((a) => (
-                    <span
-                      key={a}
-                      className="px-3 py-1 bg-red-50 text-red-600 rounded-full text-sm"
-                    >
-                      {a}
-                    </span>
-                  ))}
-                </div>
-              </div>
             )}
 
-            {profile.dreamCareers.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 text-sm font-medium text-slate-500 mb-2">
-                  <Star className="w-4 h-4" />
-                  Dream Careers
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {profile.dreamCareers.map((d) => (
-                    <span
-                      key={d}
-                      className="px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-sm"
-                    >
-                      {d}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div>
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-500 mb-1">
-                <Calendar className="w-4 h-4" />
-                Member Since
-              </div>
-              <p className="text-sm text-slate-600">
-                {new Date(profile.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+          {profile.dreamCareers.length > 0 &&
+            section(
+              "Dream Careers",
+              <p className="font-serif italic text-2xl text-[#0e3a47]/85">
+                {profile.dreamCareers.join(" · ")}
               </p>
-            </div>
-          </div>
+            )}
 
-          <button
-            onClick={handleReset}
-            className="flex items-center gap-2 text-sm text-red-500 hover:text-red-700 transition-colors mt-4 cursor-pointer"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Reset profile and start over
-          </button>
+          <div className="text-center pt-6">
+            <button
+              onClick={handleReset}
+              className="label-caps inline-flex items-center gap-2 text-[#0e3a47]/40 hover:text-[#0e3a47] transition-colors cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Reset and start over
+            </button>
+          </div>
         </div>
       </main>
     </div>

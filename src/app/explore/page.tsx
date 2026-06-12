@@ -6,16 +6,7 @@ import { loadProfile } from "@/lib/profile";
 import { getCareersByCategory } from "@/lib/careers";
 import Nav from "@/components/nav";
 import Link from "next/link";
-import { Clock, DollarSign, GraduationCap, ChevronRight } from "lucide-react";
-
-const CATEGORY_COLORS: Record<string, string> = {
-  Technology: "bg-blue-100 text-blue-700",
-  Healthcare: "bg-emerald-100 text-emerald-700",
-  "Business & Finance": "bg-amber-100 text-amber-700",
-  "Creative & Design": "bg-pink-100 text-pink-700",
-  Education: "bg-purple-100 text-purple-700",
-  "Sports & Athletics": "bg-orange-100 text-orange-700",
-};
+import { ArrowUpRight } from "lucide-react";
 
 export default function ExplorePage() {
   const router = useRouter();
@@ -26,52 +17,49 @@ export default function ExplorePage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col">
       <Nav />
 
-      <main className="flex-1 max-w-3xl w-full mx-auto px-4 pt-6 md:pt-18 pb-24">
-        <div className="space-y-2 mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Explore Careers</h1>
-          <p className="text-slate-500">
-            See what different careers actually look like — the daily reality,
-            not just the title.
+      <main className="flex-1 max-w-3xl w-full mx-auto px-4 pt-10 md:pt-24 pb-24">
+        <div className="text-center space-y-4 mb-14 animate-float-up">
+          <p className="label-caps text-[#1e9fc4]">The Possibilities</p>
+          <h1 className="font-serif text-5xl font-medium">
+            Explore <span className="italic">careers</span>
+          </h1>
+          <p className="text-sm text-[#0e3a47]/60 max-w-md mx-auto">
+            The daily reality of each path — not just the title.
           </p>
         </div>
 
-        <div className="space-y-8">
-          {Object.entries(grouped).map(([category, careers]) => (
-            <section key={category}>
-              <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                {category}
-              </h2>
+        <div className="space-y-12">
+          {Object.entries(grouped).map(([category, careers], idx) => (
+            <section key={category} className="animate-float-up" style={{ animationDelay: `${idx * 80}ms` }}>
+              <div className="flex items-center gap-4 mb-5">
+                <p className="label-caps text-[#1e9fc4] shrink-0">{category}</p>
+                <div className="h-px flex-1 bg-[#3cbbde]/25" />
+              </div>
               <div className="grid gap-3">
                 {careers.map((career) => (
                   <Link
                     key={career.id}
                     href={`/explore/${career.id}`}
-                    className="block bg-white rounded-xl border border-slate-200 p-4 hover:border-indigo-300 hover:shadow-sm transition-all"
+                    className="group block bg-white/70 backdrop-blur-sm rounded-2xl border border-[#3cbbde]/20 p-5 hover:border-[#1e9fc4]/50 hover:shadow-[0_8px_32px_rgba(60,187,222,0.12)] transition-all duration-300"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-slate-900">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <h3 className="font-serif text-2xl font-medium text-[#0e3a47]">
                         {career.title}
                       </h3>
-                      <ChevronRight className="w-4 h-4 text-slate-400" />
+                      <ArrowUpRight className="w-4 h-4 text-[#1e9fc4] opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <p className="text-sm text-slate-500 mb-3 line-clamp-2">
+                    <p className="text-sm text-[#0e3a47]/60 mb-4 line-clamp-2 leading-relaxed">
                       {career.description}
                     </p>
-                    <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-                      <span className="flex items-center gap-1">
-                        <DollarSign className="w-3.5 h-3.5" />
+                    <div className="flex flex-wrap gap-x-6 gap-y-1">
+                      <span className="label-caps text-[#0e3a47]/45">
                         {career.salaryRange}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5" />
+                      <span className="label-caps text-[#0e3a47]/45">
                         {career.timeToEntry}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <GraduationCap className="w-3.5 h-3.5" />
-                        {career.education.split("(")[0].trim()}
                       </span>
                     </div>
                   </Link>

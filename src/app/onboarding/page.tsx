@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveProfile } from "@/lib/profile";
 import { UserProfile } from "@/lib/types";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const AGE_RANGES = [
   { value: "middle-school", label: "Middle School (11–14)" },
@@ -102,188 +102,186 @@ export default function Onboarding() {
 
   const totalSteps = 6;
 
+  const pill = (selected: boolean, danger = false) =>
+    `label-caps px-5 py-3 rounded-full border transition-all duration-300 cursor-pointer ${
+      selected
+        ? danger
+          ? "border-[#0e3a47] bg-[#0e3a47] text-white"
+          : "border-[#1e9fc4] bg-[#1e9fc4] text-white"
+        : "border-[#0e3a47]/25 bg-white/60 text-[#0e3a47] hover:border-[#0e3a47]"
+    }`;
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <div className="max-w-lg w-full space-y-8">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6">
+      <div className="max-w-xl w-full space-y-10">
         {/* Progress */}
-        <div className="flex gap-1.5">
+        <div className="flex items-center justify-center gap-3">
           {Array.from({ length: totalSteps }).map((_, i) => (
             <div
               key={i}
-              className={`h-1.5 flex-1 rounded-full transition-colors ${
-                i <= step ? "bg-indigo-500" : "bg-slate-200"
+              className={`rounded-full transition-all duration-500 ${
+                i === step
+                  ? "w-2.5 h-2.5 bg-[#1e9fc4]"
+                  : i < step
+                    ? "w-1.5 h-1.5 bg-[#1e9fc4]/60"
+                    : "w-1.5 h-1.5 bg-[#0e3a47]/15"
               }`}
             />
           ))}
         </div>
 
-        {/* Step 0: Name */}
-        {step === 0 && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-slate-900">
-              What should we call you?
-            </h2>
-            <p className="text-slate-500">Your mentor wants to know who they're talking to.</p>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your first name"
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-              autoFocus
-              onKeyDown={(e) => e.key === "Enter" && canProceed() && setStep(1)}
-            />
-          </div>
-        )}
+        <div key={step} className="animate-float-up space-y-6 text-center">
+          {/* Step 0: Name */}
+          {step === 0 && (
+            <>
+              <p className="label-caps text-[#1e9fc4]">First things first</p>
+              <h2 className="font-serif text-4xl md:text-5xl font-medium">
+                What should we <span className="italic">call you?</span>
+              </h2>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your first name"
+                className="w-full max-w-sm mx-auto block bg-transparent border-b border-[#0e3a47]/30 px-2 py-3 text-center font-serif text-2xl focus:outline-none focus:border-[#1e9fc4] placeholder:text-[#0e3a47]/30 transition-colors"
+                autoFocus
+                onKeyDown={(e) => e.key === "Enter" && canProceed() && setStep(1)}
+              />
+            </>
+          )}
 
-        {/* Step 1: Age range */}
-        {step === 1 && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-slate-900">
-              Where are you in life, {name}?
-            </h2>
-            <p className="text-slate-500">This helps your mentor give age-appropriate guidance.</p>
-            <div className="grid gap-3">
-              {AGE_RANGES.map(({ value, label }) => (
-                <button
-                  key={value}
-                  onClick={() => setAgeRange(value)}
-                  className={`text-left px-4 py-3 rounded-xl border-2 transition-all cursor-pointer ${
-                    ageRange === value
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-900"
-                      : "border-slate-200 hover:border-slate-300"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+          {/* Step 1: Age range */}
+          {step === 1 && (
+            <>
+              <p className="label-caps text-[#1e9fc4]">Chapter of life</p>
+              <h2 className="font-serif text-4xl md:text-5xl font-medium">
+                Where are you, <span className="italic">{name}?</span>
+              </h2>
+              <div className="grid gap-3 max-w-sm mx-auto pt-2">
+                {AGE_RANGES.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => setAgeRange(value)}
+                    className={pill(ageRange === value)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
-        {/* Step 2: Goal */}
-        {step === 2 && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-slate-900">
-              What matters most to you?
-            </h2>
-            <p className="text-slate-500">Pick the one that resonates the most right now.</p>
-            <div className="grid grid-cols-2 gap-3">
-              {GOALS.map((goal) => (
-                <button
-                  key={goal}
-                  onClick={() => setPrimaryGoal(goal)}
-                  className={`text-left px-4 py-3 rounded-xl border-2 transition-all text-sm cursor-pointer ${
-                    primaryGoal === goal
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-900"
-                      : "border-slate-200 hover:border-slate-300"
-                  }`}
-                >
-                  {goal}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+          {/* Step 2: Goal */}
+          {step === 2 && (
+            <>
+              <p className="label-caps text-[#1e9fc4]">Your north star</p>
+              <h2 className="font-serif text-4xl md:text-5xl font-medium">
+                What matters <span className="italic">most to you?</span>
+              </h2>
+              <div className="flex flex-wrap justify-center gap-3 pt-2">
+                {GOALS.map((goal) => (
+                  <button
+                    key={goal}
+                    onClick={() => setPrimaryGoal(goal)}
+                    className={pill(primaryGoal === goal)}
+                  >
+                    {goal}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
-        {/* Step 3: Interests */}
-        {step === 3 && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-slate-900">
-              What gets you excited?
-            </h2>
-            <p className="text-slate-500">Pick as many as you want — no wrong answers.</p>
-            <div className="flex flex-wrap gap-2">
-              {SAMPLE_INTERESTS.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => toggle(interests, item, setInterests)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
-                    interests.includes(item)
-                      ? "bg-indigo-500 text-white"
-                      : "bg-white text-slate-700 border border-slate-200 hover:border-slate-400"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+          {/* Step 3: Interests */}
+          {step === 3 && (
+            <>
+              <p className="label-caps text-[#1e9fc4]">No wrong answers</p>
+              <h2 className="font-serif text-4xl md:text-5xl font-medium">
+                What gets you <span className="italic">excited?</span>
+              </h2>
+              <div className="flex flex-wrap justify-center gap-3 pt-2">
+                {SAMPLE_INTERESTS.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => toggle(interests, item, setInterests)}
+                    className={pill(interests.includes(item))}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
-        {/* Step 4: Aversions */}
-        {step === 4 && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-slate-900">
-              Anything you want to avoid?
-            </h2>
-            <p className="text-slate-500">
-              This helps your mentor steer you away from paths that won't work. Skip if nothing applies.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {SAMPLE_AVERSIONS.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => toggle(aversions, item, setAversions)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all cursor-pointer ${
-                    aversions.includes(item)
-                      ? "bg-red-100 text-red-700 border border-red-300"
-                      : "bg-white text-slate-700 border border-slate-200 hover:border-slate-400"
-                  }`}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+          {/* Step 4: Aversions */}
+          {step === 4 && (
+            <>
+              <p className="label-caps text-[#1e9fc4]">Optional, but honest</p>
+              <h2 className="font-serif text-4xl md:text-5xl font-medium">
+                Anything to <span className="italic">avoid?</span>
+              </h2>
+              <div className="flex flex-wrap justify-center gap-3 pt-2">
+                {SAMPLE_AVERSIONS.map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => toggle(aversions, item, setAversions)}
+                    className={pill(aversions.includes(item), true)}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
-        {/* Step 5: Dream careers */}
-        {step === 5 && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-slate-900">
-              Any dream careers in mind?
-            </h2>
-            <p className="text-slate-500">
-              Even if it's wild — astronaut, pro gamer, whatever. If nothing comes to mind, that's fine too. Your mentor will help you discover options.
-            </p>
-            <textarea
-              value={dreamCareers}
-              onChange={(e) => setDreamCareers(e.target.value)}
-              placeholder="e.g., Doctor, game designer, YouTuber, architect..."
-              rows={3}
-              className="w-full px-4 py-3 rounded-xl border border-slate-300 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
-            />
-          </div>
-        )}
+          {/* Step 5: Dream careers */}
+          {step === 5 && (
+            <>
+              <p className="label-caps text-[#1e9fc4]">Dream freely</p>
+              <h2 className="font-serif text-4xl md:text-5xl font-medium">
+                Any careers <span className="italic">in mind?</span>
+              </h2>
+              <p className="text-sm text-[#0e3a47]/60 max-w-sm mx-auto">
+                Even if it&apos;s wild — astronaut, pro gamer, whatever. Blank is
+                fine too; your mentor will help you discover options.
+              </p>
+              <textarea
+                value={dreamCareers}
+                onChange={(e) => setDreamCareers(e.target.value)}
+                placeholder="Doctor, game designer, architect..."
+                rows={2}
+                className="w-full max-w-md mx-auto block bg-transparent border-b border-[#0e3a47]/30 px-2 py-3 text-center font-serif text-xl focus:outline-none focus:border-[#1e9fc4] placeholder:text-[#0e3a47]/30 resize-none transition-colors"
+              />
+            </>
+          )}
+        </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between">
-          <button
-            onClick={() => setStep(step - 1)}
-            disabled={step === 0}
-            className="flex items-center gap-1 text-slate-500 hover:text-slate-800 disabled:opacity-0 transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </button>
+        <div className="flex items-center justify-center gap-6">
+          {step > 0 && (
+            <button
+              onClick={() => setStep(step - 1)}
+              className="label-caps flex items-center gap-2 text-[#0e3a47]/50 hover:text-[#0e3a47] transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Back
+            </button>
+          )}
 
           {step < totalSteps - 1 ? (
             <button
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
-              className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              className="label-caps border border-[#0e3a47] text-[#0e3a47] px-10 py-3.5 rounded-full hover:bg-[#0e3a47] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 cursor-pointer"
             >
               Continue
-              <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
             <button
               onClick={handleFinish}
-              className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-indigo-700 transition-colors cursor-pointer"
+              className="label-caps bg-[#0e3a47] text-white px-10 py-3.5 rounded-full hover:bg-[#1e9fc4] transition-all duration-300 cursor-pointer"
             >
               Meet Your Mentor
-              <Check className="w-4 h-4" />
             </button>
           )}
         </div>
