@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --sky: #3cbbde;
+    --sky-deep: #1e9fc4;
+    --sky-soft: #e8f7fb;
+    --ink: #0e3a47;
+    --white: #ffffff;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+  }
+
+  body { font-family: var(--sans); color: var(--ink); }
+
+  .slide {
+    width: 1280px;
+    height: 720px;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 100px;
+  }
+
+  /* ---- backgrounds ---- */
+  .bg-gradient {
+    background: linear-gradient(165deg, var(--white) 0%, var(--sky-soft) 45%, #cdeef8 100%);
+  }
+  .bg-dark {
+    background: var(--ink);
+    color: var(--white);
+  }
+  .bg-sky {
+    background: linear-gradient(135deg, var(--sky) 0%, var(--sky-deep) 100%);
+    color: var(--white);
+  }
+  .bg-white {
+    background: var(--white);
+  }
+
+  /* ---- decorative blurs ---- */
+  .cloud { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.45; pointer-events: none; }
+  .cloud-1 { width: 360px; height: 120px; background: var(--sky); top: 8%; left: 5%; }
+  .cloud-2 { width: 280px; height: 100px; background: var(--sky-soft); bottom: 12%; right: 8%; }
+  .cloud-3 { width: 200px; height: 80px; background: var(--sky); top: 55%; left: 60%; opacity: 0.3; }
+  .cloud-dark { background: rgba(60,187,222,0.25); }
+
+  /* ---- text ---- */
+  .label {
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--sky-deep);
+  }
+  .bg-dark .label, .bg-sky .label { color: rgba(255,255,255,0.7); }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 72px;
+    line-height: 1.08;
+    margin: 16px 0;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 52px;
+    line-height: 1.12;
+    margin: 14px 0;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 32px;
+    line-height: 1.2;
+    margin: 10px 0;
+  }
+  i, em { font-style: italic; }
+
+  p, li {
+    font-size: 20px;
+    line-height: 1.55;
+    color: rgba(14,58,71,0.7);
+  }
+  .bg-dark p, .bg-dark li { color: rgba(255,255,255,0.65); }
+  .bg-sky p, .bg-sky li { color: rgba(255,255,255,0.8); }
+
+  .subtitle {
+    font-size: 22px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  /* ---- pills ---- */
+  .pill {
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 10px 24px;
+    border-radius: 999px;
+    border: 1px solid rgba(14,58,71,0.2);
+    margin: 5px;
+    background: rgba(255,255,255,0.6);
+  }
+  .pill-filled {
+    background: var(--sky-deep);
+    color: white;
+    border-color: var(--sky-deep);
+  }
+  .bg-dark .pill { border-color: rgba(255,255,255,0.25); color: white; background: rgba(255,255,255,0.08); }
+
+  /* ---- cards ---- */
+  .card {
+    background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(60,187,222,0.2);
+    border-radius: 20px;
+    padding: 32px;
+    text-align: left;
+    backdrop-filter: blur(8px);
+  }
+
+  /* ---- grid helpers ---- */
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; width: 100%; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; width: 100%; }
+  .left-align { text-align: left; align-items: flex-start; }
+
+  /* ---- timeline visual ---- */
+  .timeline { display: flex; align-items: center; gap: 0; width: 100%; max-width: 960px; margin: 30px auto; }
+  .tl-node {
+    width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 20px; font-weight: 600;
+  }
+  .tl-node-start { background: var(--ink); color: white; }
+  .tl-node-mid { background: white; border: 2px solid var(--sky); color: var(--sky-deep); }
+  .tl-node-end { background: var(--sky-deep); color: white; }
+  .tl-line { flex: 1; height: 2px; background: linear-gradient(90deg, var(--sky), var(--sky-deep)); }
+  .tl-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em; margin-top: 8px; color: rgba(14,58,71,0.5); }
+
+  .stat-number {
+    font-family: var(--serif);
+    font-size: 56px;
+    font-weight: 600;
+    color: var(--sky-deep);
+    line-height: 1;
+  }
+  .bg-dark .stat-number { color: var(--sky); }
+
+  /* ---- footer ---- */
+  .slide-footer {
+    position: absolute;
+    bottom: 28px;
+    left: 100px;
+    right: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(14,58,71,0.3);
+  }
+  .bg-dark .slide-footer, .bg-sky .slide-footer { color: rgba(255,255,255,0.25); }
+
+  ul { list-style: none; padding: 0; }
+  ul li::before { content: '— '; color: var(--sky-deep); }
+  .bg-dark ul li::before { color: var(--sky); }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Title -->
+<div class="slide bg-gradient">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <p class="label">Introducing</p>
+  <h1>Mentor<em>Path</em></h1>
+  <p class="subtitle">
+    An AI-powered career companion that gives young people the direction,
+    skills, and confidence to discover what they're meant for.
+  </p>
+  <div style="margin-top: 36px;">
+    <span class="pill pill-filled">AI Mentor</span>
+    <span class="pill pill-filled">Career Explorer</span>
+    <span class="pill pill-filled">Learning Journey</span>
+  </div>
+  <div class="slide-footer">
+    <span>MentorPath</span>
+    <span>2026</span>
+  </div>
+</div>
+
+<!-- SLIDE 2: The Problem -->
+<div class="slide bg-dark">
+  <div class="cloud cloud-1 cloud-dark"></div>
+  <div class="cloud cloud-2 cloud-dark"></div>
+  <p class="label">The Problem</p>
+  <h2>Kids take assessments.<br />Adults give advice.<br /><em>Nobody shows them the path.</em></h2>
+  <p class="subtitle" style="margin-top: 20px;">
+    Guidance counselors are overwhelmed. Career tests say "you'd be a good architect"
+    but don't answer "what does that actually look like?" or "what do I do tomorrow?"
+    By the time most people figure it out, they've already pivoted three times.
+  </p>
+  <div class="slide-footer">
+    <span>MentorPath</span>
+    <span></span>
+  </div>
+</div>
+
+<!-- SLIDE 3: The Solution -->
+<div class="slide bg-gradient">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-3"></div>
+  <p class="label">The Solution</p>
+  <h2>A mentor that <em>lives with you</em><br />for years, not minutes</h2>
+  <p class="subtitle" style="margin-top: 16px;">
+    MentorPath is a virtual guidance counselor and mentor — powered by AI —
+    that knows your goals, your interests, what you hate, and where you are in life.
+    It doesn't teach. It gives direction.
+  </p>
+  <div style="margin-top: 32px;">
+    <span class="pill">Not a school</span>
+    <span class="pill">Not a test</span>
+    <span class="pill">A companion</span>
+  </div>
+  <div class="slide-footer">
+    <span>MentorPath</span>
+    <span></span>
+  </div>
+</div>
+
+<!-- SLIDE 4: Three Pillars -->
+<div class="slide bg-white left-align" style="padding: 60px 80px;">
+  <p class="label" style="margin-bottom: 8px;">How It Works</p>
+  <h2 style="margin-bottom: 32px;">Three ways to find <em>your path</em></h2>
+  <div class="grid-3">
+    <div class="card">
+      <p class="label" style="margin-bottom: 8px;">01</p>
+      <h3>AI Mentor</h3>
+      <p style="margin-top: 8px;">Chat with a warm, honest mentor who knows your profile. Ask anything: "What careers match me?" or "I'm scared of blood — can I still be a doctor?" It guides, it doesn't lecture.</p>
+    </div>
+    <div class="card">
+      <p class="label" style="margin-bottom: 8px;">02</p>
+      <h3>Career Explorer</h3>
+      <p style="margin-top: 8px;">Browse real careers and see what the day-to-day actually looks like — salary, timeline, skills, and a "day in the life" snapshot. Virtual shadowing, zero awkwardness.</p>
+    </div>
+    <div class="card">
+      <p class="label" style="margin-bottom: 8px;">03</p>
+      <h3>Journey Map</h3>
+      <p style="margin-top: 8px;">Pick a destination and your mentor maps every step from today to arrival — with milestones you check off, concrete actions, skills gained, and fun activities along the way.</p>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>MentorPath</span>
+    <span></span>
+  </div>
+</div>
+
+<!-- SLIDE 5: Journey Visual -->
+<div class="slide bg-gradient">
+  <div class="cloud cloud-2"></div>
+  <p class="label">Interactive Timeline</p>
+  <h2>From <em>here</em> to <em>there</em> — every step visible</h2>
+  <div class="timeline" style="margin-top: 40px;">
+    <div style="text-align: center;">
+      <div class="tl-node tl-node-start">📍</div>
+      <div class="tl-label">You are here</div>
+    </div>
+    <div class="tl-line"></div>
+    <div style="text-align: center;">
+      <div class="tl-node tl-node-mid">1</div>
+      <div class="tl-label">This week</div>
+    </div>
+    <div class="tl-line"></div>
+    <div style="text-align: center;">
+      <div class="tl-node tl-node-mid">2</div>
+      <div class="tl-label">Year 1</div>
+    </div>
+    <div class="tl-line"></div>
+    <div style="text-align: center;">
+      <div class="tl-node tl-node-mid">3</div>
+      <div class="tl-label">Year 2–3</div>
+    </div>
+    <div class="tl-line"></div>
+    <div style="text-align: center;">
+      <div class="tl-node tl-node-mid">4</div>
+      <div class="tl-label">Year 4</div>
+    </div>
+    <div class="tl-line"></div>
+    <div style="text-align: center;">
+      <div class="tl-node tl-node-end">🏁</div>
+      <div class="tl-label">You made it</div>
+    </div>
+  </div>
+  <p class="subtitle" style="margin-top: 32px;">
+    Each milestone expands into concrete actions, skills gained, and a fun factor —
+    because growth should include play. Check them off as you go.
+    The path updates as your goals evolve.
+  </p>
+  <div class="slide-footer">
+    <span>MentorPath</span>
+    <span></span>
+  </div>
+</div>
+
+<!-- SLIDE 6: Who It's For -->
+<div class="slide bg-white left-align" style="padding: 60px 80px;">
+  <p class="label" style="margin-bottom: 8px;">Who It's For</p>
+  <h2 style="margin-bottom: 32px;">Every age. <em>Every pivot.</em></h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>Students (11–18)</h3>
+      <ul style="margin-top: 12px;">
+        <li>The 7th grader who thinks they want to be a football player but hasn't considered the odds — or the music scholarship that's 10× more achievable</li>
+        <li>The high schooler choosing between ten possible lives with zero real information</li>
+        <li>Any young person who needs a mentor but doesn't have one</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Adults in Transition</h3>
+      <ul style="margin-top: 12px;">
+        <li>The data scientist wondering if their field will exist in 3 years</li>
+        <li>The 50-year-old who wants to pivot but doesn't know the options</li>
+        <li>Anyone who went to school for one thing and ended up doing another — and wants help with the next move</li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-footer">
+    <span>MentorPath</span>
+    <span></span>
+  </div>
+</div>
+
+<!-- SLIDE 7: Why It's Different -->
+<div class="slide bg-sky">
+  <p class="label">Why MentorPath</p>
+  <h2 style="margin-bottom: 40px;"><em>Direction</em>, not just information</h2>
+  <div class="grid-3" style="max-width: 960px;">
+    <div style="text-align: center;">
+      <div class="stat-number" style="color: white;">80/20</div>
+      <p style="margin-top: 8px; font-size: 16px;">Growth and play.<br />Hard skills with fun baked in.</p>
+    </div>
+    <div style="text-align: center;">
+      <div class="stat-number" style="color: white;">10×</div>
+      <p style="margin-top: 8px; font-size: 16px;">Compare multiple paths.<br />See where they overlap.</p>
+    </div>
+    <div style="text-align: center;">
+      <div class="stat-number" style="color: white;">24/7</div>
+      <p style="margin-top: 8px; font-size: 16px;">Always available.<br />No appointment needed.</p>
+    </div>
+  </div>
+  <p class="subtitle" style="margin-top: 36px;">
+    Unlike career tests that hand you a label and walk away, MentorPath stays.
+    It narrows broad dreams into specific paths, shows you the real day-to-day,
+    and walks beside you as your goals evolve over months and years.
+  </p>
+  <div class="slide-footer">
+    <span>MentorPath</span>
+    <span></span>
+  </div>
+</div>
+
+<!-- SLIDE 8: The Vision -->
+<div class="slide bg-dark">
+  <div class="cloud cloud-1 cloud-dark"></div>
+  <div class="cloud cloud-2 cloud-dark"></div>
+  <p class="label">The Vision</p>
+  <h2>Start virtual.<br /><em>End with real people.</em></h2>
+  <p class="subtitle" style="margin-top: 20px;">
+    Phase one: AI mentors that give personalized, always-available direction.<br /><br />
+    Phase two: once a student knows what they want, connect them with real
+    mentors in their community to shadow, learn, and grow. The AI gets them ready.
+    The humans get them there.
+  </p>
+  <div style="margin-top: 36px;">
+    <span class="pill">AI Mentor → Real Mentor</span>
+    <span class="pill">Virtual Shadowing → Real Shadowing</span>
+  </div>
+  <div class="slide-footer">
+    <span>MentorPath</span>
+    <span></span>
+  </div>
+</div>
+
+<!-- SLIDE 9: CTA -->
+<div class="slide bg-gradient">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <p class="label">Let's Build the Future</p>
+  <h1>Every kid deserves<br />a <em>mentor.</em></h1>
+  <p class="subtitle" style="margin-top: 16px;">
+    There aren't enough guidance counselors. There aren't enough mentors.
+    But there can be one in every pocket — one that grows with you,
+    knows you, and never stops showing you what's possible.
+  </p>
+  <div style="margin-top: 36px; display: inline-block; text-transform: uppercase; letter-spacing: 0.22em; font-size: 13px; font-weight: 500; padding: 16px 48px; border-radius: 999px; border: 1.5px solid var(--ink); color: var(--ink);">
+    mentorpath.app
+  </div>
+  <div class="slide-footer">
+    <span>MentorPath</span>
+    <span>2026</span>
+  </div>
+</div>
+
+</body>
+</html>
